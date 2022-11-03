@@ -1,23 +1,45 @@
-import { useParams, Route, Link, useRouteMatch } from "react-router-dom";
+import {
+  useParams,
+  Route,
+  Link,
+  useRouteMatch,
+  useLocation,
+} from "react-router-dom";
+
+import useHttp from "../hooks/use-http";
+import { getSingleQuote } from "../lib/api";
 
 import HighlightedQuote from "../components/quotes/HighlightedQuote";
 import Comments from "../components/comments/Comments";
 import NoQuotesFound from "../components/quotes/NoQuotesFound";
+import { useEffect } from "react";
+import LoadingSpinner from "../components/UI/LoadingSpinner";
 
 const QuoteDetail = () => {
   const match = useRouteMatch();
-  console.log(match);
+  const params = useParams();
 
-  const DummyData = [
-    { id: "q1", author: "Ayush", text: "This is my first quote of the day." },
-    { id: "q2", author: "Mishra", text: "This is my second quote of the day." },
-  ];
+  const { quoteId } = params;
 
-  let params = useParams();
+  const { sendRequest, status, data: quote } = useHttp(getSingleQuote, true);
 
-  const quote = DummyData.find((element) => element.id === params.quoteId);
+  useEffect(() => {
+    sendRequest(quoteId);
+  }, [sendRequest, quoteId]);
 
-  if (!quote) {
+  if (status === "pending") {
+    return (
+      <div className="centered">
+        <LoadingSpinner></LoadingSpinner>
+      </div>
+    );
+  }
+
+  if (status === "error") {
+    <div className="centered focused">error</div>;
+  }
+
+  if (!quote.text) {
     return (
       <Route path={`${match.path}`}>
         <NoQuotesFound></NoQuotesFound>
@@ -37,7 +59,7 @@ const QuoteDetail = () => {
         </div>
       </Route>
 
-      <Route path={`/quotes/${params.quoteId}/comments`}>
+      <Route path={`${match.path}/comments`}>
         <Comments />
       </Route>
     </>
