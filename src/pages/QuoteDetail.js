@@ -1,10 +1,4 @@
-import {
-  useParams,
-  Route,
-  Link,
-  useRouteMatch,
-  useLocation,
-} from "react-router-dom";
+import { useParams, Route, Link, useRouteMatch } from "react-router-dom";
 
 import useHttp from "../hooks/use-http";
 import { getSingleQuote } from "../lib/api";
